@@ -1,7 +1,5 @@
 package Observer;
 
-import Midia.IMidia;
-
 public interface IObserver {
-    void update(context);
+    void update(Object context);
 }
