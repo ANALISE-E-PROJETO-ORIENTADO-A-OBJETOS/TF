@@ -9,6 +9,18 @@ public class Serie extends Midia {
     public int getEpisodios() { return episodios; }
     public void setEpisodios(int episodios) { this.episodios = episodios; }
 
+    public Serie(){
+        super();
+        this.temporadas = 0;
+        this.episodios = 0;
+    }
+    public Serie(int temporadas, int episodios, String nome, int ano, int duracaoAluguel) {
+        super(nome, ano);
+        this.temporadas = temporadas;
+        this.episodios = episodios;
+        this.setDuracaoAluguel(duracaoAluguel);
+    }
+
     @Override
     public String getData() {
         return "A Série " + getNome() + "possui: "+ temporadas + " Temporadas e " + episodios + "EPs";

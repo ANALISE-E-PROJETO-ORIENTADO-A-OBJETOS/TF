@@ -9,11 +9,7 @@ public class CreatorSerie implements ICreator {
         return new Serie();
     }
     
-    public IMidia createMidia(String nome, int temporadas, int episodios) {
-        Serie serie = new Serie();
-        serie.setNome(nome);
-        serie.setTemporadas(temporadas);
-        serie.setEpisodios(episodios);
-        return serie;
+    public IMidia createMidia(String nome, int ano, int temporadas, int episodios, int duracaoAluguel) {
+        return new Serie(temporadas,  episodios, nome, ano, duracaoAluguel);
     }
 }

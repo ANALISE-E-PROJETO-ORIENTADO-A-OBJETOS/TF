@@ -9,10 +9,7 @@ public class CreatorFilme implements ICreator {
         return new Filme();
     }
     
-    public IMidia createMidia(String nome, int duracao) {
-        Filme filme = new Filme();
-        filme.setNome(nome);
-        filme.setDuracao(duracao);
-        return filme;
+    public IMidia createMidia(String nome, int ano, int duracao) {
+        return new Filme(duracao, nome, ano);
     }
 }
