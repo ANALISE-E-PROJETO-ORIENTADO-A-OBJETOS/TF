@@ -26,4 +26,9 @@ public class Alugado implements IEstado {
     public String getStatus(Midia midia) {
         return "Alugada";
     }
+    
+    // método para forçar atraso (só para testes)
+    public void marcarAtraso(Midia midia) {
+        midia.setEstado(new Atrasado()); 
+    }
 }
