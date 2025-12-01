@@ -1,46 +1,39 @@
 package Locadora; 
 
+import java.time.LocalDate;
 import Cliente.Cliente;
-import Midia.Midia;
-import java.time.LocalDate; 
+import Midia.IMidia; 
 
 public class Locacao {
-    
-    private Midia midia;
+    private IMidia midia; 
     private Cliente cliente;
-    private LocalDate dataLocacao;
     private LocalDate dataDevolucaoPrevista;
-    private boolean concluida; 
+    private boolean concluida;
 
-    public Locacao(Midia midia, Cliente cliente, LocalDate dataDevolucaoPrevista) {
+    public Locacao(IMidia midia, Cliente cliente, LocalDate dataDevolucaoPrevista) {
         this.midia = midia;
         this.cliente = cliente;
-        this.dataLocacao = LocalDate.now(); 
         this.dataDevolucaoPrevista = dataDevolucaoPrevista;
         this.concluida = false;
     }
 
-    public Midia getMidia() {
+    public IMidia getMidia() {
         return midia;
     }
-
+    
     public Cliente getCliente() {
         return cliente;
     }
     
-    public LocalDate getDataDevolucaoPrevista() {
-        return dataDevolucaoPrevista;
-    }
-
     public boolean isConcluida() {
         return concluida;
     }
-
+    
     public void marcarConcluida() {
         this.concluida = true;
     }
-    
+
     public boolean isAtrasada() {
-        return this.midia.getEstado().getClass().getSimpleName().equals("Atrasado");
+        return !concluida && LocalDate.now().isAfter(dataDevolucaoPrevista);
     }
 }

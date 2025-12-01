@@ -14,6 +14,7 @@ import Midia.Midia;
 import Midia.Serie;
 import Observer.IObserver;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -26,6 +27,12 @@ import Pagamento.DuzentosReais;
 import Pagamento.Pagamento;
 import Pagamento.UmReal;
 import Pagamento.VinteReais;
+import Generos.Comedia;
+import Generos.Drama;
+import Generos.Fantasia;
+import Generos.Romance;
+import Generos.Terror;
+
 
 public class Locadora implements IObserver{
     
@@ -92,117 +99,173 @@ public class Locadora implements IObserver{
     }
     
     
-    public void adicionarFilme(String titulo, int ano, int duracao) {
+    public void adicionarFilme(String titulo, int ano, int duracao, List<String> generos) {
         IMidia novoFilme = this.creatorFilme.createMidia(titulo, ano, duracao);
-        this.filmes.add(novoFilme);
         
+        novoFilme = aplicarDecoradores(novoFilme, generos);
+        
+        this.filmes.add(novoFilme);
         novoFilme.subscribe(this);
     }
 
-    public void adicionarSerie(String titulo, int ano, int temporadas, int episodios, int duracaoAluguel) {        
-        IMidia novaSerie = this.creatorSerie.createMidia(titulo, ano, temporadas, episodios, duracaoAluguel);
-        this.series.add(novaSerie);
+    public void adicionarSerie(String titulo, int ano, int temporadas, int episodios, int duracaoAluguel, List<String> generos) {        
         
+        IMidia novaSerie = this.creatorSerie.createMidia(titulo, ano, temporadas, episodios, duracaoAluguel);
+        
+        novaSerie = aplicarDecoradores(novaSerie, generos);
+        
+        this.series.add(novaSerie);
         novaSerie.subscribe(this);
     }
 
    
 
+    private IMidia aplicarDecoradores(IMidia midia, List<String> generos) {
+        IMidia midiaDecorada = midia;
 
-    public boolean locarMidia(String nomeCliente, String tituloMidia, int precoMidia, Scanner scanner) {
+        for (String genero : generos) {
+            switch (genero.toLowerCase()) {
+                case "comedia":
+                    midiaDecorada = new Comedia(midiaDecorada);
+                    break;
+                case "drama":
+                    midiaDecorada = new Drama(midiaDecorada);
+                    break;
+                case "fantasia":
+                    midiaDecorada = new Fantasia(midiaDecorada);
+                    break;
+                case "romance":
+                    midiaDecorada = new Romance(midiaDecorada);
+                    break;
+                case "terror":
+                    midiaDecorada = new Terror(midiaDecorada);
+                    break;
+                default:
+                   
+            }
+        }
+        return midiaDecorada;
+    }
+    
+    
+    private Midia desempacotarMidia(IMidia midiaPotencialmenteDecorada) {
+        IMidia atual = midiaPotencialmenteDecorada;
+
+        while (atual != null && !(atual instanceof Midia)) {
+            
+            IMidia proximoNivel = null;
+            Class<?> classeAtual = atual.getClass();
+
+
+            while (classeAtual != null && proximoNivel == null) {
+                Field[] campos = classeAtual.getDeclaredFields();
+                
+                for (Field campo : campos) {
+                    campo.setAccessible(true); 
+                    try {
+                        Object valor = campo.get(atual);
+
+                        if (valor instanceof IMidia && valor != null) {
+                            proximoNivel = (IMidia) valor;
+                            break; 
+                        }
+                    } catch (Exception e) {
+                        // Ignora campos protegidos/inacessíveis que falharem
+                    }
+                }
+
+                classeAtual = classeAtual.getSuperclass();
+            }
+
+            if (proximoNivel != null) {
+                atual = proximoNivel;
+            } else {
+
+                return null; 
+            }
+        }
+
+        return (Midia) atual;
+    }
+    
+public boolean locarMidia(String nomeCliente, String tituloMidia, int precoMidia, Scanner scanner) {
         
-        Midia midia = procurarMidiaNoCatalogo(tituloMidia);
-        if (midia == null) { 
-            System.out.println("Mídia '" + tituloMidia + "' não encontrada.");
-        	return false; 
+        IMidia midiaDecorada = procurarMidiaNoCatalogo(tituloMidia);
+        
+        if (midiaDecorada == null) { 
+            System.out.println("Mídia não encontrada."); return false; 
         }
 
         Cliente cliente = procurarCliente(nomeCliente);
-        if (cliente == null || !checarCliente(nomeCliente)) {
-        	System.out.println("Cliente " + nomeCliente + " não existe ou está bloqueado");
-        	return false; 
-        }
+        if (cliente == null || !checarCliente(nomeCliente)) { return false; }
         
+        System.out.print("Dias de aluguel: ");
+        int diasAluguel = 1; 
+        if(scanner.hasNextInt()) diasAluguel = scanner.nextInt(); else scanner.next();
         
-        System.out.print("Por quantos dias você deseja alugar '" + tituloMidia + "'? (Entrada do usuário) ");
-		int diasAluguel = scanner.nextInt(); 
-		
-         
-		cliente.getCarrinho().adicionarMidia(midia, precoMidia);
+        cliente.getCarrinho().adicionarMidia(midiaDecorada, precoMidia);
         
         LocalDate dataPrevista = LocalDate.now().plusDays(diasAluguel); 
-        Locacao novaLocacao = new Locacao(midia, cliente, dataPrevista);
         
+        Locacao novaLocacao = new Locacao(midiaDecorada, cliente, dataPrevista);
         this.locacoesAtivas.add(novaLocacao);
         
-        System.out.println("Mídia '" + tituloMidia + "' (R$" + precoMidia + ",00) adicionada ao carrinho de " + cliente.getNome() + ".");
-        System.out.println("Locação criada. Data de devolução prevista: " + dataPrevista);
+        System.out.println("Adicionado ao carrinho: " + midiaDecorada.getData());
         return true;
     }
     
     public boolean finalizarPagamento(String nomeCliente) {
         Cliente cliente = procurarCliente(nomeCliente);
-        if (cliente == null || !checarCliente(nomeCliente)) {
-            return false;
-        }
+        if (cliente == null) return false;
 
         int valorTotal = cliente.getCarrinho().getValorTotalAPagar();
-        
-        if (valorTotal <= 0) {
-            System.out.println("Carrinho vazio. Nada a pagar.");
-            return false;
-        }
+        if (valorTotal <= 0) return false;
 
-        System.out.println("Processando pagamento de R$" + valorTotal + ",00 para " + cliente.getNome() + "...");
-        
         cliente.getCarrinho().processarPagamento(valorTotal, this.pagamentoChain); 
-
-        System.out.println("Pagamento processado com sucesso.");
         
-        List<Midia> midiasNoCarrinho = cliente.getCarrinho().getMidias();
+        List<IMidia> midiasNoCarrinho = cliente.getCarrinho().getMidias();
 
-        for (Midia midia : midiasNoCarrinho) {
+        for (IMidia midiaDecorada : midiasNoCarrinho) {
+            
             Optional<Locacao> locacao = this.locacoesAtivas.stream()
-                .filter(l -> l.getMidia() == midia && l.getCliente() == cliente && !l.isConcluida())
+                .filter(l -> l.getMidia() == midiaDecorada && l.getCliente() == cliente && !l.isConcluida())
                 .findFirst();
 
             if (locacao.isPresent()) {
-                midia.subscribe(cliente); 
-                midia.alugar();
+                Midia midiaReal = desempacotarMidia(midiaDecorada);
+                
+                if (midiaReal != null) {
+                    midiaReal.subscribe(cliente); 
+                    midiaReal.alugar(); 
+                }
             } 
         }
         cliente.getCarrinho().limparCarrinho(); 
         return true;
     }
     
-    
-   
     public void devolverMidia(String tituloMidia, String nomeCliente) {        
-        
-        Midia midia = procurarMidiaNoCatalogo(tituloMidia);
+        IMidia midiaDecorada = procurarMidiaNoCatalogo(tituloMidia);
         Cliente cliente = procurarCliente(nomeCliente);
         
-        if (midia != null && cliente != null) {
-            midia.devolver(); 
+        if (midiaDecorada != null && cliente != null) {
             
-            Optional<Locacao> locacao = this.locacoesAtivas.stream().filter(l -> l.getMidia() == midia && l.getCliente() == cliente).findFirst();
+            Midia midiaReal = desempacotarMidia(midiaDecorada);
+            if (midiaReal != null) midiaReal.devolver();
+            
+            Optional<Locacao> locacao = this.locacoesAtivas.stream()
+                    .filter(l -> l.getMidia() == midiaDecorada && l.getCliente() == cliente)
+                    .findFirst();
                 
             locacao.ifPresent(l -> {
                 l.marcarConcluida(); 
                 this.locacoesAtivas.remove(l);
             });
             
-            boolean temOutrasPendencias = this.locacoesAtivas.stream().filter(l -> l.getCliente() == cliente).anyMatch(Locacao::isAtrasada); 
-                
-            if (!temOutrasPendencias) {
-                this.clientesBloqueados.remove(cliente); 
-            } 
-            
-        } else {
-            System.err.println("DEVOLVER MÍDIA: Mídia ou Cliente não encontrado.");
+             boolean temOutrasPendencias = this.locacoesAtivas.stream().filter(l -> l.getCliente() == cliente).anyMatch(Locacao::isAtrasada); 
+            if (!temOutrasPendencias) this.clientesBloqueados.remove(cliente); 
         }
     }
-    
    
     public boolean checarCliente(String nomeCliente) {
        
@@ -235,22 +298,14 @@ public class Locadora implements IObserver{
         }
     }
     
-    
-    public Midia procurarMidiaNoCatalogo(String titulo) {  
-        Optional<IMidia> filme = filmes.stream()
-            .filter(m -> m instanceof Midia)
-            .filter(m -> ((Midia) m).getNome().equalsIgnoreCase(titulo))
-            .findFirst();
-            
-        if (filme.isPresent()) {
-            return (Midia) filme.get();
-        }
+    public IMidia procurarMidiaNoCatalogo(String titulo) {  
+        Optional<IMidia> midiaFilme = filmes.stream()
+            .filter(m -> m.getData().toLowerCase().contains(titulo.toLowerCase())).findFirst();
+        if (midiaFilme.isPresent()) return midiaFilme.get();
         
-        Optional<IMidia> serie = series.stream().filter(m -> m instanceof Midia).filter(m -> ((Midia) m).getNome().equalsIgnoreCase(titulo)).findFirst();
-
-        if (serie.isPresent()) {
-            return (Midia) serie.get();
-        }
+        Optional<IMidia> midiaSerie = series.stream()
+            .filter(m -> m.getData().toLowerCase().contains(titulo.toLowerCase())).findFirst();
+        if (midiaSerie.isPresent()) return midiaSerie.get();
         
         return null;
     }
