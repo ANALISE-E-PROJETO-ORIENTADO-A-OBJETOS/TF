@@ -1,15 +1,15 @@
-package trabalho_final_Ana_Proj_OO;
+package Generos;
 
-public class Romance extends Genero {
+import Midia.IMidia;
 
-    public Romance(Midia midia) {
+public class Romance extends Generos {
+
+    public Romance(IMidia midia) {
         super(midia);
     }
 
     @Override
-    public String getDescricao() {
-        return midia.getDescricao() + " [Gênero: Romance]";
+    public String getData() {
+        return super.getData() + " [Romance]";
     }
-    
-    // Se o preço não muda, não precisamos sobrescrever o getPreco()
 }

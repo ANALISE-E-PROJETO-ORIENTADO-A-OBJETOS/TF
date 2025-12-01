@@ -1,20 +1,16 @@
-package trabalho_final_Ana_Proj_OO;
+package Generos;
 
-public class Terror extends Genero {
+import Midia.IMidia;
 
-    public Terror(Midia midia) {
+public class Terror extends Generos {
+
+    public Terror(IMidia midia) {
         super(midia);
     }
 
     @Override
-    public String getDescricao() {
-        // Adiciona a tag do gênero à descrição existente
-        return midia.getDescricao() + " [Gênero: Terror]";
+    public String getData() {
+        return super.getData() + " [Terror]";
     }
 
-    @Override
-    public double getPreco() {
-        // Exemplo: Filmes de terror podem ter um acréscimo ou preço padrão
-        return midia.getPreco() + 1.50; 
-    }
 }

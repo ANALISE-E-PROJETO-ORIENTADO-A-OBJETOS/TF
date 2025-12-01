@@ -1,13 +1,15 @@
-package trabalho_final_Ana_Proj_OO;
+package Generos;
 
-public class Drama extends Genero {
+import Midia.IMidia;
 
-    public Drama(Midia midia) {
+public class Drama extends Generos {
+
+    public Drama(IMidia midia) {
         super(midia);
     }
 
     @Override
-    public String getDescricao() {
-        return midia.getDescricao() + " [Gênero: Drama]";
+    public String getData() {
+        return super.getData() + " [Drama]";
     }
 }
