@@ -3,6 +3,7 @@ package Locadora;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Scanner;
 
 import Cliente.Cliente;
 import Creators.CreatorFilme;
@@ -108,33 +109,73 @@ public class Locadora implements IObserver{
    
 
 
-    public boolean locarMidia(String nomeCliente, String tituloMidia, int valorTotal) {
+    public boolean locarMidia(String nomeCliente, String tituloMidia, int precoMidia, Scanner scanner) {
         
         Midia midia = procurarMidiaNoCatalogo(tituloMidia);
         if (midia == null) { 
+            System.out.println("Mídia '" + tituloMidia + "' não encontrada.");
         	return false; 
         }
 
         Cliente cliente = procurarCliente(nomeCliente);
         if (cliente == null || !checarCliente(nomeCliente)) {
-        	System.out.println("Cliente " + cliente.getNome() + " não existe ou está bloqueado");
+        	System.out.println("Cliente " + nomeCliente + " não existe ou está bloqueado");
         	return false; 
         }
         
-       
-        LocalDate dataPrevista = LocalDate.now().plusDays(5); 
+        
+        System.out.print("Por quantos dias você deseja alugar '" + tituloMidia + "'? (Entrada do usuário) ");
+		int diasAluguel = scanner.nextInt(); 
+		
+         
+		cliente.getCarrinho().adicionarMidia(midia, precoMidia);
+        
+        LocalDate dataPrevista = LocalDate.now().plusDays(diasAluguel); 
         Locacao novaLocacao = new Locacao(midia, cliente, dataPrevista);
+        
         this.locacoesAtivas.add(novaLocacao);
         
-   
-        midia.subscribe(cliente); 
-
-        cliente.getCarrinho().processarPagamento(valorTotal, this.pagamentoChain); 
-
-        midia.alugar(); 
-        
+        System.out.println("Mídia '" + tituloMidia + "' (R$" + precoMidia + ",00) adicionada ao carrinho de " + cliente.getNome() + ".");
+        System.out.println("Locação criada. Data de devolução prevista: " + dataPrevista);
         return true;
     }
+    
+    public boolean finalizarPagamento(String nomeCliente) {
+        Cliente cliente = procurarCliente(nomeCliente);
+        if (cliente == null || !checarCliente(nomeCliente)) {
+            return false;
+        }
+
+        int valorTotal = cliente.getCarrinho().getValorTotalAPagar();
+        
+        if (valorTotal <= 0) {
+            System.out.println("Carrinho vazio. Nada a pagar.");
+            return false;
+        }
+
+        System.out.println("Processando pagamento de R$" + valorTotal + ",00 para " + cliente.getNome() + "...");
+        
+        cliente.getCarrinho().processarPagamento(valorTotal, this.pagamentoChain); 
+
+        System.out.println("Pagamento processado com sucesso.");
+        
+        List<Midia> midiasNoCarrinho = cliente.getCarrinho().getMidias();
+
+        for (Midia midia : midiasNoCarrinho) {
+            Optional<Locacao> locacao = this.locacoesAtivas.stream()
+                .filter(l -> l.getMidia() == midia && l.getCliente() == cliente && !l.isConcluida())
+                .findFirst();
+
+            if (locacao.isPresent()) {
+                midia.subscribe(cliente); 
+                midia.alugar();
+            } 
+        }
+        cliente.getCarrinho().limparCarrinho(); 
+        return true;
+    }
+    
+    
    
     public void devolverMidia(String tituloMidia, String nomeCliente) {        
         
@@ -215,7 +256,7 @@ public class Locadora implements IObserver{
     }
     
     
-    private Cliente procurarCliente(String nomeCliente) {
+    public Cliente procurarCliente(String nomeCliente) {
         return this.clientes.stream()
             .filter(c -> c.getNome().equalsIgnoreCase(nomeCliente))
             .findFirst()

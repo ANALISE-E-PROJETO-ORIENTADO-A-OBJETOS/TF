@@ -23,8 +23,7 @@ public abstract class Dinheiro implements Pagamento{
             int restante = request % valorNota;
             int numNotas = request / valorNota;
             
-            System.out.println(String.format("Pagando %d com %d nota(s) de R$%d,00.", 
-                               request, numNotas, valorNota));
+            System.out.println(String.format("Troco: %d nota(s) de R$%d,00.", numNotas, valorNota));
             
             if (restante > 0 && next != null) {
                 next.handle(restante);
