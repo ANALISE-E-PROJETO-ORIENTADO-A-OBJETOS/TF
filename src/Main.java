@@ -93,11 +93,8 @@ void main() {
                 while(sair == 0){
                     System.out.println("Digite o nome da mídia: ");
                     nomeMidia = scanner.nextLine();
-                    System.out.println("Digite por quantos dias será feita a locação: ");
-                    dias = scanner.nextInt();
-                    scanner.nextLine();
                     // Tenta locar
-                    boolean locou = locadora.locarMidia(nomeCliente, nomeMidia, dias * valorDiaria, scanner, dias);
+                    boolean locou = locadora.locarMidia(nomeCliente, nomeMidia,  valorDiaria, scanner);
 
                     if (locou) {
                         System.out.println("✅ Mídia adicionada ao carrinho.");

@@ -188,7 +188,7 @@ public class Locadora implements IObserver{
         return (Midia) atual;
     }
     
-public boolean locarMidia(String nomeCliente, String tituloMidia, int precoMidia, Scanner scanner, int dias) {
+public boolean locarMidia(String nomeCliente, String tituloMidia, int precoMidia, Scanner scanner) {
         
         IMidia midiaDecorada = procurarMidiaNoCatalogo(tituloMidia);
         
@@ -203,9 +203,9 @@ public boolean locarMidia(String nomeCliente, String tituloMidia, int precoMidia
         int diasAluguel = 1;
         if(scanner.hasNextInt()) diasAluguel = scanner.nextInt(); else scanner.next();
         
-        cliente.getCarrinho().adicionarMidia(midiaDecorada, precoMidia);
+        cliente.getCarrinho().adicionarMidia(midiaDecorada, precoMidia * diasAluguel);
         
-        LocalDate dataPrevista = LocalDate.now().plusDays(dias);
+        LocalDate dataPrevista = LocalDate.now().plusDays(diasAluguel);
         
         Locacao novaLocacao = new Locacao(midiaDecorada, cliente, dataPrevista);
         this.locacoesAtivas.add(novaLocacao);

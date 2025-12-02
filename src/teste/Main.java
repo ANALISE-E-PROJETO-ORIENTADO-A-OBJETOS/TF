@@ -64,7 +64,7 @@ public class Main {
         int valorAluguel = 20;
 
         // Tenta locar
-        boolean locou = locadora.locarMidia(nomeCliente, nomeFilme, valorAluguel, scannerSimulado, 5);
+        boolean locou = locadora.locarMidia(nomeCliente, nomeFilme, valorAluguel, scannerSimulado);
 
         if (locou) {
             System.out.println("✅ Mídia adicionada ao carrinho.");
@@ -126,7 +126,7 @@ public class Main {
         // Tentar alugar outra coisa (Deve falhar)
         System.out.println("   Tentando alugar outra mídia enquanto bloqueado...");
         locadora.adicionarSerie("Breaking Bad", 2008, 5, 60, List.of("Drama"));
-        boolean tentativaBloqueada = locadora.locarMidia(nomeCliente, "Breaking Bad", 10, new Scanner("1"), 1);
+        boolean tentativaBloqueada = locadora.locarMidia(nomeCliente, "Breaking Bad", 10, new Scanner("1"));
 
         if (!tentativaBloqueada) {
             System.out.println("✅ Sistema impediu nova locação corretamente.");
