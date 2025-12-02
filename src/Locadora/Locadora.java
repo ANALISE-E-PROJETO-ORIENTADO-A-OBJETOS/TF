@@ -148,47 +148,8 @@ public class Locadora implements IObserver{
     }
     
     
-    private Midia desempacotarMidia(IMidia midiaPotencialmenteDecorada) {
-        IMidia atual = midiaPotencialmenteDecorada;
-
-        while (atual != null && !(atual instanceof Midia)) {
-            
-            IMidia proximoNivel = null;
-            Class<?> classeAtual = atual.getClass();
-
-
-            while (classeAtual != null && proximoNivel == null) {
-                Field[] campos = classeAtual.getDeclaredFields();
-                
-                for (Field campo : campos) {
-                    campo.setAccessible(true); 
-                    try {
-                        Object valor = campo.get(atual);
-
-                        if (valor instanceof IMidia && valor != null) {
-                            proximoNivel = (IMidia) valor;
-                            break; 
-                        }
-                    } catch (Exception e) {
-                        // Ignora campos protegidos/inacessíveis que falharem
-                    }
-                }
-
-                classeAtual = classeAtual.getSuperclass();
-            }
-
-            if (proximoNivel != null) {
-                atual = proximoNivel;
-            } else {
-
-                return null; 
-            }
-        }
-
-        return (Midia) atual;
-    }
     
-public boolean locarMidia(String nomeCliente, String tituloMidia, int precoMidia, Scanner scanner) {
+    public boolean locarMidia(String nomeCliente, String tituloMidia, int precoMidia, Scanner scanner) {
 
         IMidia midiaDecorada = procurarMidiaNoCatalogo(tituloMidia);
 
@@ -214,58 +175,56 @@ public boolean locarMidia(String nomeCliente, String tituloMidia, int precoMidia
         return true;
     }
     
-    public boolean finalizarPagamento(String nomeCliente) {
-        Cliente cliente = procurarCliente(nomeCliente);
-        if (cliente == null) return false;
+	public boolean finalizarPagamento(String nomeCliente) {
+		Cliente cliente = procurarCliente(nomeCliente);
+		if (cliente == null) return false;
 
-        int valorTotal = cliente.getCarrinho().getValorTotalAPagar();
-        if (valorTotal <= 0) return false;
+		int valorTotal = cliente.getCarrinho().getValorTotalAPagar();
+		if (valorTotal <= 0) return false;
 
-        cliente.getCarrinho().processarPagamento(valorTotal, this.pagamentoChain); 
-        
-        List<IMidia> midiasNoCarrinho = cliente.getCarrinho().getMidias();
-
-        for (IMidia midiaDecorada : midiasNoCarrinho) {
-            
-            Optional<Locacao> locacao = this.locacoesAtivas.stream()
-                .filter(l -> l.getMidia() == midiaDecorada && l.getCliente() == cliente && !l.isConcluida())
-                .findFirst();
-
-            if (locacao.isPresent()) {
-                Midia midiaReal = desempacotarMidia(midiaDecorada);
-                
-                if (midiaReal != null) {
-                    midiaReal.subscribe(cliente); 
-                    midiaReal.alugar(); 
-                }
-            } 
-        }
-        cliente.getCarrinho().limparCarrinho(); 
-        return true;
-    }
+		cliente.getCarrinho().processarPagamento(valorTotal, this.pagamentoChain); 
     
-    public void devolverMidia(String tituloMidia, String nomeCliente) {        
-        IMidia midiaDecorada = procurarMidiaNoCatalogo(tituloMidia);
-        Cliente cliente = procurarCliente(nomeCliente);
+		List<IMidia> midiasNoCarrinho = cliente.getCarrinho().getMidias();
+
+		for (IMidia midiaDecorada : midiasNoCarrinho) {
         
-        if (midiaDecorada != null && cliente != null) {
-            
-            Midia midiaReal = desempacotarMidia(midiaDecorada);
-            if (midiaReal != null) midiaReal.devolver();
-            
-            Optional<Locacao> locacao = this.locacoesAtivas.stream()
-                    .filter(l -> l.getMidia() == midiaDecorada && l.getCliente() == cliente)
-                    .findFirst();
-                
-            locacao.ifPresent(l -> {
-                l.marcarConcluida(); 
-                this.locacoesAtivas.remove(l);
-            });
-            
-             boolean temOutrasPendencias = this.locacoesAtivas.stream().filter(l -> l.getCliente() == cliente).anyMatch(Locacao::isAtrasada); 
-            if (!temOutrasPendencias) this.clientesBloqueados.remove(cliente); 
-        }
-    }
+			Optional<Locacao> locacao = this.locacoesAtivas.stream()
+					.filter(l -> l.getMidia() == midiaDecorada && l.getCliente() == cliente && !l.isConcluida())
+					.findFirst();
+
+			if (locacao.isPresent()) {
+				midiaDecorada.subscribe(cliente); 
+				midiaDecorada.alugar(); 
+			} 
+		}
+			cliente.getCarrinho().limparCarrinho(); 
+			return true;
+	}
+    
+	public void devolverMidia(String tituloMidia, String nomeCliente) {        
+	    IMidia midiaDecorada = procurarMidiaNoCatalogo(tituloMidia);
+	    Cliente cliente = procurarCliente(nomeCliente);
+	    
+	    if (midiaDecorada != null && cliente != null) {
+	        
+	        midiaDecorada.devolver();
+	        
+	        Optional<Locacao> locacao = this.locacoesAtivas.stream()
+	                .filter(l -> l.getMidia() == midiaDecorada && l.getCliente() == cliente)
+	                .findFirst();
+	            
+	        locacao.ifPresent(l -> {
+	            l.marcarConcluida(); 
+	            this.locacoesAtivas.remove(l);
+	        });
+	        
+	         boolean temOutrasPendencias = this.locacoesAtivas.stream()
+	            .filter(l -> l.getCliente() == cliente)
+	            .anyMatch(Locacao::isAtrasada); 
+	            
+	        if (!temOutrasPendencias) this.clientesBloqueados.remove(cliente); 
+	    }
+	}
    
     public boolean checarCliente(String nomeCliente) {
        
@@ -281,16 +240,18 @@ public boolean locarMidia(String nomeCliente, String tituloMidia, int precoMidia
     @Override
     public void update(Object context) {
         String mensagem = (String) context;
+        if (mensagem.contains("Atrasado")) {
 
-        if (mensagem.contains("Atrasado")) {            
-
-        	Optional<Locacao> locacaoAtrasada = this.locacoesAtivas.stream().filter(Locacao::isAtrasada).findFirst();
+            Optional<Locacao> locacaoAtrasada = this.locacoesAtivas.stream()
+                .filter(l -> l.isAtrasada() || l.getMidia().getStatus().equalsIgnoreCase("Atrasado"))
+                .findFirst();
 
             if (locacaoAtrasada.isPresent()) {
                 Cliente clienteParaBloquear = locacaoAtrasada.get().getCliente();
                 
                 if (!this.clientesBloqueados.contains(clienteParaBloquear)) {
-                    this.clientesBloqueados.add(clienteParaBloquear); 
+                    this.clientesBloqueados.add(clienteParaBloquear);
+                    System.out.println("   -> BLOQUEIO EFETIVADO PARA: " + clienteParaBloquear.getNome());
                 }
             } else {
                 System.out.println("-> Falha ao encontrar locação ativa associada ao item atrasado.");
