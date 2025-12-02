@@ -17,6 +17,7 @@ public class Carrinho {
     public void adicionarMidia(IMidia midia, int valor) { 
         this.midias.add(midia);
         this.valorTotalAPagar += valor;
+        System.out.println("Valor total do carrinho: R$" + valorTotalAPagar + "\n");
     }
 
     public void limparCarrinho() {

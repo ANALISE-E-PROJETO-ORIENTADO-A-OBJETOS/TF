@@ -12,7 +12,7 @@ void main() {
     Locadora locadora = Locadora.getInstance();
 
     while(option != 0) {
-        System.out.println("\nMENU DA LOCADORA\n[1] - Adicionar cliente\n[2] - Adicionar mídia\n[3] - Realizar locação\n[4] - Realizar devolução\n");
+        System.out.println("\nMENU DA LOCADORA\n[1] - Adicionar cliente\n[2] - Adicionar mídia\n[3] - Realizar locação\n[4] - Realizar devolução\n[0] - Sair");
         option = scanner.nextInt();
         scanner.nextLine();
         switch(option){
@@ -121,6 +121,8 @@ void main() {
                 nomeMidia = scanner.nextLine();
                 locadora.devolverMidia(nomeMidia, nomeCliente);
                 System.out.println("✅ Mídia devolvida.");
+                break;
+            default:
                 break;
         }
     }
