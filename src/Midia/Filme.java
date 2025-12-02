@@ -18,9 +18,4 @@ public class Filme extends Midia {
     public String getData() {
         return "O Filme " + getNome() + " possui: "+ duracao + " minutos de duração";
     }
-    
-    @Override
-    public void notifyObs() {
-        notifyObservers();
-    }
 }

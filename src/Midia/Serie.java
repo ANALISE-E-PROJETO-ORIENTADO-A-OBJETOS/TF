@@ -24,11 +24,4 @@ public class Serie extends Midia {
     public String getData() {
         return "A Série " + getNome() + " possui: "+ temporadas + " Temporadas e " + episodios + "EPs";
     }
-
-    @Override
-    public void notifyObs() {
-        notifyObservers();
-    }
-
-    
 }

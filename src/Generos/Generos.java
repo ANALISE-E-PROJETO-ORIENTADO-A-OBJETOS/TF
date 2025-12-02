@@ -16,10 +16,6 @@ public abstract class Generos implements IMidia {
         return wrappee.getData();
     }
 
-    @Override
-    public void notifyObs() {
-        wrappee.notifyObs();
-    }
 
     @Override
     public void subscribe(IObserver observer) {

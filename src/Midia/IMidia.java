@@ -4,7 +4,4 @@ import Observer.IObservable;
 
 public interface IMidia extends IObservable {
     String getData();
-    void notifyObs();
-    
-    
 }
