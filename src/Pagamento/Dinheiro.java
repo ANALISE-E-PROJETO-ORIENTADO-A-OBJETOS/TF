@@ -6,7 +6,7 @@ public abstract class Dinheiro implements Pagamento{
 	protected Pagamento next;
     protected int valorNota; 
     
-    public Dinheiro(int valorNota) {
+    protected Dinheiro(int valorNota) {
         this.valorNota = valorNota;
     }
     
