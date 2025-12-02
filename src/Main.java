@@ -12,7 +12,7 @@ void main() {
     Locadora locadora = Locadora.getInstance();
 
     while(option != 0) {
-        System.out.println("\nMENU DA LOCADORA\n[1] - Adicionar cliente\n[2] - Adicionar mídia\n[3] - Realizar locação\n[4] - Realizar devolução\n[0] - Sair");
+        System.out.println("\nMENU DA LOCADORA\n[1] - Adicionar cliente\n[2] - Adicionar mídia\n[3] - Realizar locação\n[4] - Realizar devolução\n[5] - Inscrever cliente\n[6] - Desinscrever cliente\n[0] - Sair");
         option = scanner.nextInt();
         scanner.nextLine();
         switch(option){
@@ -122,6 +122,19 @@ void main() {
                 locadora.devolverMidia(nomeMidia, nomeCliente);
                 System.out.println("✅ Mídia devolvida.");
                 break;
+            case 5:
+                System.out.println("Digite o nome do cliente: ");
+                nomeCliente = scanner.nextLine();
+                System.out.println("Digite o título da mídia: ");
+                nomeMidia = scanner.nextLine();
+                locadora.inscreverCliente(nomeCliente, nomeMidia);
+                break;
+            case 6:
+                System.out.println("Digite o nome do cliente: ");
+                nomeCliente = scanner.nextLine();
+                System.out.println("Digite o título da mídia: ");
+                nomeMidia = scanner.nextLine();
+                locadora.desinscreverCliente(nomeCliente, nomeMidia);
             default:
                 break;
         }

@@ -189,11 +189,11 @@ public class Locadora implements IObserver{
     }
     
 public boolean locarMidia(String nomeCliente, String tituloMidia, int precoMidia, Scanner scanner) {
-        
+
         IMidia midiaDecorada = procurarMidiaNoCatalogo(tituloMidia);
-        
-        if (midiaDecorada == null) { 
-            System.out.println("Mídia não encontrada."); return false; 
+
+        if (midiaDecorada == null) {
+            System.out.println("Mídia não encontrada."); return false;
         }
 
         Cliente cliente = procurarCliente(nomeCliente);
@@ -316,5 +316,36 @@ public boolean locarMidia(String nomeCliente, String tituloMidia, int precoMidia
             .filter(c -> c.getNome().equalsIgnoreCase(nomeCliente))
             .findFirst()
             .orElse(null);
+    }
+
+    public void inscreverCliente(String nomeCliente, String nomeMidia) {
+        IMidia midiaDecorada = procurarMidiaNoCatalogo(nomeMidia);
+
+        if (midiaDecorada == null) {
+            System.out.println("Mídia não encontrada."); return;
+        }
+
+        Cliente cliente = procurarCliente(nomeCliente);
+        if (cliente == null) {
+            System.out.println("Cliente não encontrado."); return;
+        }
+
+        midiaDecorada.subscribe(cliente);
+        System.out.println("Cliente inscrito com sucesso.\n");
+    }
+
+    public void desinscreverCliente(String nomeCliente, String nomeMidia) {
+        IMidia midiaDecorada = procurarMidiaNoCatalogo(nomeMidia);
+
+        if (midiaDecorada == null) {
+            return;
+        }
+
+        Cliente cliente = procurarCliente(nomeCliente);
+        if (cliente == null) {
+            return;
+        }
+        midiaDecorada.unsubscribe(cliente);
+        System.out.println("Inscrição desfeita com sucesso.\n");
     }
 }
