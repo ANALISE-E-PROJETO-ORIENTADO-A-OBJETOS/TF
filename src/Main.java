@@ -132,6 +132,7 @@ void main() {
                 System.out.println("Digite o título da mídia: ");
                 nomeMidia = scanner.nextLine();
                 locadora.desinscreverCliente(nomeCliente, nomeMidia);
+                break;
             default:
                 break;
         }
