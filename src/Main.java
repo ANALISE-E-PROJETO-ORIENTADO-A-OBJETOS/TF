@@ -1,5 +1,6 @@
 import Cliente.Cliente;
 import Estado.Alugado;
+import Estado.Disponivel;
 import Locadora.Locadora;
 import Midia.IMidia;
 import Midia.Midia;
@@ -11,7 +12,7 @@ void main() {
     Locadora locadora = Locadora.getInstance();
 
     while(option != 0) {
-        System.out.println("\nMENU DA LOCADORA\n[1] - Adicionar cliente\n[2] - Adicionar mídia\n[3] - Realizar locação\n");
+        System.out.println("\nMENU DA LOCADORA\n[1] - Adicionar cliente\n[2] - Adicionar mídia\n[3] - Realizar locação\n[4] - Realizar devolução\n");
         option = scanner.nextInt();
         scanner.nextLine();
         switch(option){
@@ -86,7 +87,6 @@ void main() {
             case 3:
                 int sair = 0;
                 int valorDiaria = 4;
-                int dias;
                 String nomeCliente;
                 System.out.println("Digite o nome do cliente: ");
                 nomeCliente = scanner.nextLine();
@@ -113,8 +113,15 @@ void main() {
                     System.out.println("❌ Erro no pagamento.");
                 }
                 System.out.println();
-
-
+                break;
+            case 4:
+                System.out.println("Digite o nome do cliente: ");
+                nomeCliente = scanner.nextLine();
+                System.out.println("Digite o título da mídia: ");
+                nomeMidia = scanner.nextLine();
+                locadora.devolverMidia(nomeMidia, nomeCliente);
+                System.out.println("✅ Mídia devolvida.");
+                break;
         }
     }
 
