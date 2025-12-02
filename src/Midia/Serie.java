@@ -27,7 +27,7 @@ public class Serie extends Midia {
     }
 
     @Override
-    public void doSomething() {
+    public void notifyObs() {
         notifyObservers();
     }
 

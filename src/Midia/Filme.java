@@ -20,7 +20,7 @@ public class Filme extends Midia {
     }
     
     @Override
-    public void doSomething() {
+    public void notifyObs() {
         notifyObservers();
     }
 }

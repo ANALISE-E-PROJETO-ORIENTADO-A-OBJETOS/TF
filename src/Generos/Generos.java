@@ -17,8 +17,8 @@ public abstract class Generos implements IMidia {
     }
 
     @Override
-    public void doSomething() {
-        wrappee.doSomething();
+    public void notifyObs() {
+        wrappee.notifyObs();
     }
 
     @Override
