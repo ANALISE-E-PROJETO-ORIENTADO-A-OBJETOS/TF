@@ -1,9 +1,6 @@
 import Cliente.Cliente;
-import Estado.Alugado;
-import Estado.Disponivel;
 import Locadora.Locadora;
 import Midia.IMidia;
-import Midia.Midia;
 
 import java.util.Scanner;
 void main() {
