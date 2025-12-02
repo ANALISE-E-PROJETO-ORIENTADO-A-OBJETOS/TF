@@ -35,4 +35,24 @@ public abstract class Generos implements IMidia {
     public void notifyObservers() {
         wrappee.notifyObservers();
     }
+    
+    @Override
+    public void alugar() {
+        wrappee.alugar();
+    }
+
+    @Override
+    public void devolver() {
+        wrappee.devolver();
+    }
+
+    @Override
+    public void renovar() {
+        wrappee.renovar();
+    }
+    
+    @Override
+    public String getStatus() {
+        return wrappee.getStatus();
+    }
 }
