@@ -7,7 +7,7 @@ public abstract class Generos implements IMidia {
 
     protected IMidia wrappee;
 
-    public Generos(IMidia midia) {
+    protected Generos(IMidia midia) {
         this.wrappee = midia;
     }
 
