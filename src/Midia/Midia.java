@@ -12,25 +12,20 @@ public abstract class Midia implements IMidia {
     private String nome;
     private IEstado estado;
     private int ano;
-    private int duracaoAluguel;
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
     public int getAno() { return ano; }
     public void setAno(int ano) { this.ano = ano; }
-    public int getDuracaoAluguel() { return duracaoAluguel; }
-    public void setDuracaoAluguel(int duracaoAluguel) {}
 
     protected Midia(){
         this.estado = new Disponivel();
         this.nome = "Não informado";
         this.ano = 0;
-        this.duracaoAluguel = 3;
     }
     protected Midia(String nome, int ano) {
         this.estado = new Disponivel();
         this.nome = nome;
         this.ano = ano;
-        this.duracaoAluguel = 3;
     }
 
     public IEstado getEstado() { return estado; }

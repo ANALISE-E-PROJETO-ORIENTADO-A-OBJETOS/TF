@@ -17,7 +17,7 @@ public class Main {
     public static void main(String[] args) {
         // 1. Obtendo a instância única (Singleton)
         Locadora locadora = Locadora.getInstance();
-        
+
         System.out.println("#########################################################");
         System.out.println("🎬  TESTE INTEGRADO: LOCADORA JAVA");
         System.out.println("#########################################################\n");
@@ -26,7 +26,7 @@ public class Main {
         // CENÁRIO 1: PREPARAÇÃO (CADASTRO E DECORATOR)
         // ----------------------------------------------------------------------
         System.out.println(">>> [1] Preparação do Ambiente");
-        
+
         // Criar Cliente
         String nomeCliente = "Lucas Testador";
         locadora.adicionarCliente(new Cliente(nomeCliente));
@@ -36,8 +36,8 @@ public class Main {
         // Estrutura: Terror(Drama(Filme))
         List<String> generos = new ArrayList<>();
         generos.add("Drama");
-        generos.add("Terror"); 
-        
+        generos.add("Terror");
+
         String nomeFilme = "O Iluminado";
         locadora.adicionarFilme(nomeFilme, 1980, 146, generos);
 
@@ -46,7 +46,7 @@ public class Main {
         if (midiaDecorada != null) {
             System.out.println("✅ Mídia criada com Decorators.");
             // Deve imprimir algo como: O Iluminado ... [Drama] [Terror]
-            System.out.println("   Descrição completa: " + midiaDecorada.getData()); 
+            System.out.println("   Descrição completa: " + midiaDecorada.getData());
         } else {
             System.out.println("❌ Erro fatal: Mídia não encontrada.");
             return;
@@ -60,18 +60,18 @@ public class Main {
         System.out.println(">>> [2] Realizando Locação");
 
         // Simulamos que o usuário digitou "5" dias no console
-        Scanner scannerSimulado = new Scanner("5"); 
+        Scanner scannerSimulado = new Scanner("5");
         int valorAluguel = 20;
 
         // Tenta locar
-        boolean locou = locadora.locarMidia(nomeCliente, nomeFilme, valorAluguel, scannerSimulado);
+        boolean locou = locadora.locarMidia(nomeCliente, nomeFilme, valorAluguel, scannerSimulado, 5);
 
         if (locou) {
             System.out.println("✅ Mídia adicionada ao carrinho.");
         } else {
             System.out.println("❌ Falha ao adicionar ao carrinho.");
         }
-        
+
         // Validar estado antes do pagamento (Ainda deve ser Disponível no objeto real, pois só está no carrinho)
         Midia midiaReal = desempacotarParaTeste(midiaDecorada);
         System.out.println("   Estado atual (pré-pagamento): " + (midiaReal != null ? midiaReal.getStatus() : "Erro"));
@@ -82,9 +82,9 @@ public class Main {
         // CENÁRIO 3: PAGAMENTO E MUDANÇA DE ESTADO
         // ----------------------------------------------------------------------
         System.out.println(">>> [3] Finalizando Pagamento (Chain of Responsibility)");
-        
+
         boolean pagou = locadora.finalizarPagamento(nomeCliente);
-        
+
         if (pagou) {
             System.out.println("✅ Pagamento processado.");
             // AGORA o estado deve ter mudado para Alugado
@@ -103,20 +103,20 @@ public class Main {
         // CENÁRIO 4: SIMULAÇÃO DE ATRASO E BLOQUEIO (OBSERVER)
         // ----------------------------------------------------------------------
         System.out.println(">>> [4] Teste de Atraso e Bloqueio Automático");
-        
+
         // Vamos forçar o atraso manualmente já que não queremos esperar dias reais
         if (midiaReal != null && midiaReal.getEstado() instanceof Alugado) {
             System.out.println("   ⚠️  Forçando estado 'Atrasado' via código...");
-            
+
             // O cast é seguro aqui pois verificamos com instanceof acima
             ((Alugado) midiaReal.getEstado()).marcarAtraso(midiaReal);
-            
+
             // O Observer deve ter sido notificado neste momento
         }
 
         // Verificar se a Locadora bloqueou o cliente
         boolean clienteEstaLivre = locadora.checarCliente(nomeCliente);
-        
+
         if (!clienteEstaLivre) {
             System.out.println("✅ SUCESSO: O cliente '" + nomeCliente + "' foi BLOQUEADO pelo sistema.");
         } else {
@@ -125,9 +125,9 @@ public class Main {
 
         // Tentar alugar outra coisa (Deve falhar)
         System.out.println("   Tentando alugar outra mídia enquanto bloqueado...");
-        locadora.adicionarSerie("Breaking Bad", 2008, 5, 60, 10, List.of("Drama"));
-        boolean tentativaBloqueada = locadora.locarMidia(nomeCliente, "Breaking Bad", 10, new Scanner("1"));
-        
+        locadora.adicionarSerie("Breaking Bad", 2008, 5, 60, List.of("Drama"));
+        boolean tentativaBloqueada = locadora.locarMidia(nomeCliente, "Breaking Bad", 10, new Scanner("1"), 1);
+
         if (!tentativaBloqueada) {
             System.out.println("✅ Sistema impediu nova locação corretamente.");
         } else {
@@ -140,7 +140,7 @@ public class Main {
         // CENÁRIO 5: DEVOLUÇÃO E DESBLOQUEIO
         // ----------------------------------------------------------------------
         System.out.println(">>> [5] Devolução e Desbloqueio");
-        
+
         locadora.devolverMidia(nomeFilme, nomeCliente);
         System.out.println("✅ Mídia devolvida.");
 
@@ -161,7 +161,7 @@ public class Main {
         System.out.println("\n#########################################################");
         System.out.println("🏁  FIM DO TESTE");
         System.out.println("#########################################################");
-        
+
         scannerSimulado.close();
     }
 
@@ -173,12 +173,12 @@ public class Main {
      */
     private static Midia desempacotarParaTeste(IMidia midia) {
         IMidia atual = midia;
-        
+
         // Enquanto o objeto atual NÃO for a classe concreta Midia (Filme ou Serie)
         while (atual != null && !(atual instanceof Midia)) {
             IMidia proximo = null;
             Class<?> clazz = atual.getClass();
-            
+
             // Loop para procurar a variável 'wrappee' (ou similar) nas classes pai (Generos)
             while (clazz != null && proximo == null) {
                 for (Field f : clazz.getDeclaredFields()) {
@@ -194,7 +194,7 @@ public class Main {
                 }
                 clazz = clazz.getSuperclass(); // Sobe para a classe pai (ex: de Drama para Generos)
             }
-            
+
             if (proximo != null) {
                 atual = proximo; // Desce um nível
             } else {

@@ -108,9 +108,9 @@ public class Locadora implements IObserver{
         novoFilme.subscribe(this);
     }
 
-    public void adicionarSerie(String titulo, int ano, int temporadas, int episodios, int duracaoAluguel, List<String> generos) {        
+    public void adicionarSerie(String titulo, int ano, int temporadas, int episodios, List<String> generos) {
         
-        IMidia novaSerie = this.creatorSerie.createMidia(titulo, ano, temporadas, episodios, duracaoAluguel);
+        IMidia novaSerie = this.creatorSerie.createMidia(titulo, ano, temporadas, episodios);
         
         novaSerie = aplicarDecoradores(novaSerie, generos);
         
@@ -188,7 +188,7 @@ public class Locadora implements IObserver{
         return (Midia) atual;
     }
     
-public boolean locarMidia(String nomeCliente, String tituloMidia, int precoMidia, Scanner scanner) {
+public boolean locarMidia(String nomeCliente, String tituloMidia, int precoMidia, Scanner scanner, int dias) {
         
         IMidia midiaDecorada = procurarMidiaNoCatalogo(tituloMidia);
         
@@ -200,12 +200,12 @@ public boolean locarMidia(String nomeCliente, String tituloMidia, int precoMidia
         if (cliente == null || !checarCliente(nomeCliente)) { return false; }
         
         System.out.print("Dias de aluguel: ");
-        int diasAluguel = 1; 
+        int diasAluguel = 1;
         if(scanner.hasNextInt()) diasAluguel = scanner.nextInt(); else scanner.next();
         
         cliente.getCarrinho().adicionarMidia(midiaDecorada, precoMidia);
         
-        LocalDate dataPrevista = LocalDate.now().plusDays(diasAluguel); 
+        LocalDate dataPrevista = LocalDate.now().plusDays(dias);
         
         Locacao novaLocacao = new Locacao(midiaDecorada, cliente, dataPrevista);
         this.locacoesAtivas.add(novaLocacao);
