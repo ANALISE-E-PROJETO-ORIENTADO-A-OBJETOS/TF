@@ -12,7 +12,6 @@ public class Alugado implements IEstado {
     public void devolver(Midia midia) {
         System.out.println("Mídia " + midia.getNome() + " devolvida com sucesso!");
         midia.setEstado(new Disponivel());
-        midia.notifyObservers();
     }
     
     @Override

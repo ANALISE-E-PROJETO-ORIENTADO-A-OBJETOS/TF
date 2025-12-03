@@ -7,7 +7,6 @@ public class Disponivel implements IEstado {
     public void alugar(Midia midia) {
         System.out.println("Mídia " + midia.getNome() + " alugada com sucesso!");
         midia.setEstado(new Alugado());
-        midia.notifyObservers();
     }
 
     @Override
